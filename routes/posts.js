@@ -15,7 +15,9 @@ router.get("/user-pen", isAuthenticated, async (req, res) => {
   try {
     const allPosts = await Post.find({
       creatorId: req.user.id,
-    }).populate("creatorId");
+    })
+      .populate("creatorId")
+      .sort({ createdAt: -1 });
     res.json(allPosts);
   } catch (err) {
     res.json(err.message);

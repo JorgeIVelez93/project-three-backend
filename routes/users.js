@@ -3,6 +3,7 @@ var router = express.Router();
 const User = require("../models/Users");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const FavParks = require("../models/FavParks");
 
 const { isAuthenticated } = require("../middleware/auth");
 const fileUploader = require("../middleware/cloudinary");
@@ -79,7 +80,8 @@ router.post("/login", async (req, res) => {
       profilePic: foundUser.profilePic,
     });
   } catch (err) {
-    res.status(400).json(err.message);
+    res.status(400).js;
+    // 7yhbg on(err.message);
   }
 });
 router.get("/login-test", isAuthenticated, (req, res) => {
@@ -94,15 +96,24 @@ router.post(
   }
 );
 
-router.post("/fav-park", isAuthenticated, (req, res) => {
-  res.json({
+router.post("/fav-park", isAuthenticated, async (req, res) => {
+  const favoriteParkList = await FavParks.create({
     postId: req.body.postId,
     backgroundImg: req.body.backgroundImg,
     parkName: req.body.parkName,
+    creatorId: req.user.id,
   });
+  res.json(favoriteParkList);
 });
-// router.get("/all-parks", isAuthenticated, (req,res) => {
-// res.json ()
-// })
+router.get("/all-parks", isAuthenticated, async (req, res) => {
+  try {
+    const favoriteParks = await FavParks.find({
+      creatorId: req.user.id,
+    }).populate("creatorId");
+    res.json(favoriteParks);
+  } catch (err) {
+    res.json(err.message);
+  }
+});
 
 module.exports = router;
